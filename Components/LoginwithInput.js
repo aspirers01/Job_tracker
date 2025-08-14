@@ -1,10 +1,8 @@
-import Entypo from '@react-native-vector-icons/entypo';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 function LoginWithInput(props) {
   return (
     <View style={styles.container}>
-      <Entypo name={props.iconname} size={24} color="black" />
       <TextInput
         style={styles.textInput}
         placeholder={props.placeholder}

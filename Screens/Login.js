@@ -2,12 +2,12 @@ import {
   Text,
   SafeAreaView,
   KeyboardAvoidingView,
-  TextInput,
+  StyleSheet,
   Platform,
   View,
-  Button,
 } from 'react-native';
 import LoginWithInput from '../Components/LoginwithInput';
+import Button from '../Components/Button';
 
 function LoginScreen(props) {
   return (
@@ -25,6 +25,7 @@ function LoginScreen(props) {
           </Text>
           <Text style={styles.subheadingtext}>effortlessly</Text>
         </View>
+
         <View style={styles.maincontainer}>
           <LoginWithInput
             iconname="email"
@@ -46,6 +47,14 @@ function LoginScreen(props) {
             <Text>Keep me logged in</Text>
             <Text style={{ color: '#007fff' }}>Forget Password</Text>
           </View>
+          <View style={styles.loginButton}>
+            <Button title="Login" />
+          </View>
+          <View>
+            <Text style={styles.logintext}>
+              Don't have an account? <Text style={styles.link}>Register</Text>
+            </Text>
+          </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -53,8 +62,7 @@ function LoginScreen(props) {
 }
 
 export default LoginScreen;
-
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
@@ -69,7 +77,6 @@ const styles = {
     marginBottom: 20,
   },
   motto: {
-    flex: 1,
     marginTop: 40,
     alignItems: 'center',
     marginBottom: 10,
@@ -84,6 +91,24 @@ const styles = {
   maincontainer: {
     flex: 1,
     justifyContent: 'center',
+  },
+  link: {
+    color: '#f4511e',
     alignItems: 'center',
   },
-};
+  logintext: {
+    textAlign: 'center',
+    marginVertical: 20,
+  },
+  loginButton: {
+    backgroundColor: '#febe10',
+    padding: 10,
+    width: 300,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    marginTop: 50,
+  },
+});
