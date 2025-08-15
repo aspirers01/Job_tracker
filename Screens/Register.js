@@ -11,7 +11,7 @@ import {
 import LoginWithInput from '../Components/LoginwithInput';
 import Button from '../Components/Button';
 
-function RegisterScreen() {
+function RegisterScreen(props) {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -29,7 +29,7 @@ function RegisterScreen() {
             <Text style={styles.subheadingtext}>effortlessly</Text>
           </View>
           <View>
-            {/* <LoginWithInput iconname="person-outline" placeholder="Name" />
+            <LoginWithInput iconname="person-outline" placeholder="Name" />
             <LoginWithInput iconname="mail-outline" placeholder="UserEmail" />
             <LoginWithInput
               iconname="lock-closed-outline"
@@ -38,14 +38,20 @@ function RegisterScreen() {
             <LoginWithInput
               iconname="lock-closed-outline"
               placeholder="Confirm Password"
-            /> */}
+            />
             <View style={styles.registerButton}>
               <Button title="Register" />
             </View>
           </View>
           <View>
             <Text style={styles.registertext}>
-              Don't have an account? <Text style={styles.link}>Login</Text>
+              Don't have an account?{' '}
+              <Text
+                style={styles.link}
+                onPress={() => props.navigation.replace('LoginScreen')}
+              >
+                Login
+              </Text>
             </Text>
           </View>
         </ScrollView>
@@ -100,7 +106,7 @@ const styles = StyleSheet.create({
     color: '#f4511e',
   },
   registerButton: {
-    backgroundColor: '#febe10',
+    backgroundColor: '#109bfeff',
     padding: 10,
     width: 300,
     marginLeft: 'auto',

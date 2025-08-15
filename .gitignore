@@ -73,3 +73,58 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.staging
+
+# IDE/Editor files
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Android Studio / IntelliJ
+.idea/
+*.iws
+
+# Flipper
+ios/Pods/Flipper
+ios/Pods/Flipper-Folly
+ios/Pods/Headers/Public/Flipper
+ios/Pods/Headers/Public/Flipper-Folly
+
+# iOS specific (additional)
+ios/Pods/
+ios/build/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+
+# Android specific (additional)
+android/app/build/
+android/build/
+android/.gradle/
+android/app/release/
+android/gradlew
+android/gradlew.bat

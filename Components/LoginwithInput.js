@@ -1,8 +1,10 @@
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from '@react-native-vector-icons/ionicons';
+import { View, TextInput, StyleSheet } from 'react-native';
 
 function LoginWithInput(props) {
   return (
     <View style={styles.container}>
+      <Ionicons name={props.iconname} size={24} color="gray" />
       <TextInput
         style={styles.textInput}
         placeholder={props.placeholder}

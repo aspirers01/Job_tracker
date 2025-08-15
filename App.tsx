@@ -7,13 +7,14 @@ import TestScreen from './Screens/test';
 import DashboardScreen from './Screens/Dashboard';
 import SettingsScreen from './Screens/Settings';
 import ApplicationsScreen from './Screens/Applications';
+import MyStackNavigator from './Navigation/StackNavigator';
 
 function App() {
  
 
   return (
    <>
-    <ApplicationsScreen />
+    <MyStackNavigator />
    </>
      
     

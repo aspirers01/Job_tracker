@@ -28,12 +28,12 @@ function LoginScreen(props) {
 
         <View style={styles.maincontainer}>
           <LoginWithInput
-            iconname="email"
+            iconname="mail-outline"
             placeholder="Username"
             // setValue={setEmail}
           />
           <LoginWithInput
-            iconname="lock"
+            iconname="lock-closed-outline"
             placeholder="Password"
             // setValue={setPassword}
           />
@@ -48,11 +48,22 @@ function LoginScreen(props) {
             <Text style={{ color: '#007fff' }}>Forget Password</Text>
           </View>
           <View style={styles.loginButton}>
-            <Button title="Login" />
+            <Button
+              onPress={() => {
+                props.navigation.replace('Main');
+              }}
+              title="Login"
+            />
           </View>
           <View>
             <Text style={styles.logintext}>
-              Don't have an account? <Text style={styles.link}>Register</Text>
+              Don't have an account?{' '}
+              <Text
+                style={styles.link}
+                onPress={() => props.navigation.replace('RegisterScreen')}
+              >
+                Register
+              </Text>
             </Text>
           </View>
         </View>
@@ -101,7 +112,7 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   loginButton: {
-    backgroundColor: '#febe10',
+    backgroundColor: '#109bfeff',
     padding: 10,
     width: 300,
     marginLeft: 'auto',
