@@ -5,13 +5,15 @@ import LoginScreen from './Screens/Login';
 import RegisterScreen from './Screens/Register';
 import TestScreen from './Screens/test';
 import DashboardScreen from './Screens/Dashboard';
+import SettingsScreen from './Screens/Settings';
+import ApplicationsScreen from './Screens/Applications';
 
 function App() {
  
 
   return (
    <>
-    <DashboardScreen />
+    <ApplicationsScreen />
    </>
      
     
