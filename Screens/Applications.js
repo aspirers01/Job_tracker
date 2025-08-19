@@ -58,7 +58,10 @@ function ApplicationsScreen(props) {
         <SearchBar />
       </View>
       <View style={styles.addbutton}>
-        <Button title="+ Add Job" onPress={handleAddJob} />
+        <Button
+          title="+ Add Job"
+          onPress={() => props.navigation.navigate('AddJobScreen')}
+        />
       </View>
       <View style={styles.filterRow}>
         {FILTERS.map(filter => (
