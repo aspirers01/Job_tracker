@@ -10,8 +10,53 @@ import {
 } from 'react-native';
 import LoginWithInput from '../Components/LoginwithInput';
 import Button from '../Components/Button';
+import { useState } from 'react';
+import axios from 'axios';
 
 function RegisterScreen(props) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleRegister() {
+    try {
+      setLoading(true);
+      if (!name || !email || !password || !confirmPassword) {
+        alert('Please fill all the fields');
+        setLoading(false);
+        return;
+      }
+      if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+      const baseURL =
+        Platform.OS === 'android'
+          ? 'http://10.0.2.2:8080/api/v1/users/register'
+          : 'http://localhost:8080/api/v1/users/register';
+      const { data } = await axios.post(baseURL, {
+        name: name,
+        email: email,
+        password: password,
+      });
+      console.log(data);
+      setLoading(false);
+      if (data) {
+        alert('Registration Successful');
+        props.navigation.replace('LoginScreen');
+      }
+
+      return;
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      alert('Registration Failed');
+    }
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -29,18 +74,32 @@ function RegisterScreen(props) {
             <Text style={styles.subheadingtext}>effortlessly</Text>
           </View>
           <View>
-            <LoginWithInput iconname="person-outline" placeholder="Name" />
-            <LoginWithInput iconname="mail-outline" placeholder="UserEmail" />
+            <LoginWithInput
+              iconname="person-outline"
+              placeholder="Name"
+              setValue={setName}
+            />
+            <LoginWithInput
+              iconname="mail-outline"
+              placeholder="UserEmail"
+              setValue={setEmail}
+            />
             <LoginWithInput
               iconname="lock-closed-outline"
               placeholder="Password"
+              setValue={setPassword}
             />
             <LoginWithInput
               iconname="lock-closed-outline"
               placeholder="Confirm Password"
+              setValue={setConfirmPassword}
             />
             <View style={styles.registerButton}>
-              <Button title="Register" />
+              <Button
+                title="Register"
+                onPress={handleRegister}
+                loading={loading}
+              />
             </View>
           </View>
           <View>

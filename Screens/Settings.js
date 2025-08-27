@@ -2,11 +2,45 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useState } from 'react';
 
 import Button from '../Components/Button';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react/cjs/react.development';
 
 function SettingsScreen(props) {
   const [loading, setLoading] = useState(false);
+
+  const [name, setName] = useState('');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData !== null) {
+          const user = JSON.parse(userData);
+          setName(user.name); // 👈 store user name
+        }
+      } catch (err) {
+        console.log('Error loading user:', err);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  async function logout() {
+    try {
+      setLoading(true);
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('user');
+      props.navigation.replace('LoginScreen');
+    } catch (err) {
+      console.log('Error logging out:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
   return (
     <View style={styles.container}>
+      <Text>{name}</Text>
       <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>
         Settings
       </Text>
@@ -15,7 +49,7 @@ function SettingsScreen(props) {
           title="Logout"
           loading={loading}
           onPress={() => {
-            setLoading(!loading);
+            logout();
           }}
         />
       </View>

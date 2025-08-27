@@ -5,11 +5,60 @@ import {
   StyleSheet,
   Platform,
   View,
+  Alert,
 } from 'react-native';
 import LoginWithInput from '../Components/LoginwithInput';
+import { use, useState } from 'react';
 import Button from '../Components/Button';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect } from 'react';
 function LoginScreen(props) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const checkLogin = async () => {
+      const token = await AsyncStorage.getItem('accessToken');
+      if (token) {
+        props.navigation.replace('Main');
+      }
+    };
+    checkLogin();
+  }, []);
+  async function handleLogin() {
+    try {
+      setLoading(true);
+      if (!email || !password) {
+        alert('Please fill all the fields');
+        setLoading(false);
+        return;
+      }
+      const baseURL =
+        Platform.OS === 'android'
+          ? 'http://10.0.2.2:8080/api/v1/users/login'
+          : 'http://localhost:8080/api/v1/users/login';
+      const { data } = await axios.post(baseURL, {
+        email: email,
+        password: password,
+      });
+      console.log(data);
+      setLoading(false);
+      if (data) {
+        await AsyncStorage.setItem('accessToken', data.tokens.accessToken);
+        await AsyncStorage.setItem('refreshToken', data.tokens.refreshToken);
+        await AsyncStorage.setItem('user', JSON.stringify(data.user));
+        alert('Login Successful');
+        props.navigation.replace('Main');
+      }
+
+      return;
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+      alert('Invalid Credentials');
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -30,12 +79,12 @@ function LoginScreen(props) {
           <LoginWithInput
             iconname="mail-outline"
             placeholder="Username"
-            // setValue={setEmail}
+            setValue={setEmail}
           />
           <LoginWithInput
             iconname="lock-closed-outline"
             placeholder="Password"
-            // setValue={setPassword}
+            setValue={setPassword}
           />
           <View
             style={{
@@ -48,12 +97,7 @@ function LoginScreen(props) {
             <Text style={{ color: '#007fff' }}>Forget Password</Text>
           </View>
           <View style={styles.loginButton}>
-            <Button
-              onPress={() => {
-                props.navigation.replace('Main');
-              }}
-              title="Login"
-            />
+            <Button loading={loading} onPress={handleLogin} title="Login" />
           </View>
           <View>
             <Text style={styles.logintext}>

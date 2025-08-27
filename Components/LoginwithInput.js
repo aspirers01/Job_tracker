@@ -18,7 +18,7 @@ function LoginWithInput(props) {
             ? true
             : false
         }
-        // onChangeText={text => props.setValue(text) }
+        onChangeText={text => props.setValue(text)}
       />
     </View>
   );

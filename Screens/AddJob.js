@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -7,37 +6,78 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
-
+import axios from 'axios';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 function AddJobScreen({ navigation }) {
   const route = useRoute();
   const jobToEdit = route.params?.job; // coming from FlatList item press
 
   // States
   const [company, setCompany] = useState('');
-  const [position, setPosition] = useState('');
-
-  const [status, setStatus] = useState('applied');
+  const [jobtitle, setJobtitle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState('Applied');
   const [link, setLink] = useState('');
   const [date, setDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  async function jobHandler() {
+    // Make API call to save job
+
+    try {
+      setLoading(true);
+      const baseURL =
+        Platform.OS === 'android'
+          ? 'http://10.0.2.2:8080/api/v1/jobs'
+          : 'http://localhost:8080/api/v1/jobs';
+      const token = await AsyncStorage.getItem('accessToken');
+      console.log(token);
+      const jobdata = { company, jobtitle, status, date, link };
+      let res;
+      if (jobToEdit) {
+        res = await axios.put(`${baseURL}/update/${jobToEdit._id}`, jobdata, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      } else {
+        console.log('Creating new job:', jobdata);
+        res = await axios.post(`${baseURL}/create`, jobdata, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log('Job saved successfully:', res.data);
+      }
+    } catch (error) {
+      console.error(
+        'Error saving job:',
+        error.response?.data || error.message, // ✅ show actual backend error
+        error.response?.status, // ✅ show status code
+      );
+      Alert.alert('Error', 'Failed to save job. Please try again.');
+    }
+  }
   // Pre-fill if editing
   useEffect(() => {
     if (jobToEdit) {
+      console.log('jobToEdit:', jobToEdit);
       setCompany(jobToEdit.company || '');
-      setPosition(jobToEdit.position || '');
+      setJobtitle(jobToEdit.jobtitle || '');
 
-      setStatus(jobToEdit.status || 'applied');
+      setStatus(jobToEdit.status || 'Applied');
       setLink(jobToEdit.link || '');
       setDate(jobToEdit.date ? new Date(jobToEdit.date) : null);
     }
   }, [jobToEdit]);
 
-  // Date Picker Handlers
   const showDatePicker = () => setDatePickerVisibility(true);
   const hideDatePicker = () => setDatePickerVisibility(false);
   const handleConfirm = selectedDate => {
@@ -54,24 +94,7 @@ function AddJobScreen({ navigation }) {
 
   // Save / Update Job
   const handleSave = () => {
-    const jobData = {
-      company,
-      position,
-      status,
-      date: date ? formatDate(date) : null,
-      link,
-    };
-
-    if (jobToEdit) {
-      // 🔹 Update existing job
-      console.log('Updating Job:', { id: jobToEdit.id, ...jobData });
-      // TODO: Update in database with jobToEdit.id
-    } else {
-      // 🔹 Add new job
-      console.log('Adding New Job:', jobData);
-      // TODO: Save new job in database
-    }
-
+    jobHandler();
     navigation.goBack();
   };
 
@@ -89,8 +112,8 @@ function AddJobScreen({ navigation }) {
         <Text style={styles.label}>Job Title</Text>
         <TextInput
           style={styles.input}
-          value={position}
-          onChangeText={setPosition}
+          value={jobtitle}
+          onChangeText={setJobtitle}
           placeholder="Enter job title"
         />
 
@@ -112,10 +135,10 @@ function AddJobScreen({ navigation }) {
         <Text style={styles.label}>Status</Text>
         <View style={styles.pickerWrapper}>
           <Picker selectedValue={status} onValueChange={setStatus}>
-            <Picker.Item label="Applied" value="applied" />
-            <Picker.Item label="Interview" value="interview" />
-            <Picker.Item label="Offer" value="offer" />
-            <Picker.Item label="Rejected" value="rejected" />
+            <Picker.Item label="Applied" value="Applied" />
+            <Picker.Item label="Interview" value="Interview" />
+            <Picker.Item label="Offer" value="Offer" />
+            <Picker.Item label="Rejected" value="Rejected" />
           </Picker>
         </View>
 
@@ -129,7 +152,7 @@ function AddJobScreen({ navigation }) {
 
         <TouchableOpacity style={styles.addButton} onPress={handleSave}>
           <Text style={styles.addButtonText}>
-            {jobToEdit ? 'Update Job' : 'Add Job'}
+            {loading ? 'Please wait...' : jobToEdit ? 'Update Job' : 'Add Job'}
           </Text>
         </TouchableOpacity>
       </ScrollView>

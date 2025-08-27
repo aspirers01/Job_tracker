@@ -3,14 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 function CardActivity({ title, date, tag }) {
   // Function to get color based on tag
   const getTagColor = tag => {
-    switch (tag.toLowerCase()) {
-      case 'offer':
+    switch (tag) {
+      case 'Offer':
         return 'green';
-      case 'interview':
+      case 'Interview':
         return 'blue';
-      case 'rejected':
+      case 'Rejected':
         return 'red';
-      case 'applied':
+      case 'Applied':
         return 'orange';
       default:
         return '#999'; // default gray color

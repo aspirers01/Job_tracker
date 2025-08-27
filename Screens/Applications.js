@@ -7,51 +7,66 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import SearchBar from '../Components/SearchBar';
-import React, { useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '../Components/Button';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 function ApplicationsScreen(props) {
+  const [jobs, setJobs] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState('All');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        const baseURL =
+          Platform.OS === 'android'
+            ? 'http://10.0.2.2:8080/api/v1/jobs'
+            : 'http://localhost:8080/api/v1/jobs';
+
+        const res = await axios.get(`${baseURL}/getjobs`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setJobs(res.data);
+        console.log(res.data);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const FILTERS = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
   const getTagColor = tag => {
-    switch (tag.toLowerCase()) {
-      case 'offer':
+    switch (tag) {
+      case 'Offer':
         return 'green';
-      case 'interview':
+      case 'Interview':
         return 'blue';
-      case 'rejected':
+      case 'Rejected':
         return 'red';
-      case 'applied':
+      case 'Applied':
         return 'orange';
       default:
         return '#999'; // default gray color
     }
   };
 
-  const [jobs, setJobs] = useState([
-    { id: 1, company: 'Netflix', role: 'Software Engineer', status: 'Applied' },
-    { id: 2, company: 'Microsoft', role: 'Product Manager', status: 'Applied' },
-    { id: 3, company: 'Apple', role: 'UX Designer', status: 'Applied' },
-    { id: 4, company: 'Google', role: 'Data Scientist', status: 'Applied' },
-    { id: 5, company: 'Amazon', role: 'Backend Engineer', status: 'Interview' },
-    { id: 6, company: 'Meta', role: 'Frontend Engineer', status: 'Offer' },
-  ]);
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const onjobclick = job => {
+    console.log('Selected job:', job);
+    props.navigation.navigate('AddJobScreen', { jobToEdit: job });
+    // Navigate to job details screen or perform any action
+  };
 
   const filteredJobs =
     selectedFilter === 'All'
       ? jobs
       : jobs.filter(job => job.status === selectedFilter);
 
-  const handleAddJob = () => {
-    // For now, just add a dummy job (later can open a form modal)
-    const newJob = {
-      id: jobs.length + 1,
-      company: 'New Company',
-      role: 'New Role',
-      status: 'Applied',
-    };
-    setJobs([newJob, ...jobs]);
-  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searcharea}>
@@ -85,16 +100,28 @@ function ApplicationsScreen(props) {
         ))}
       </View>
       <FlatList
+        ListEmptyComponent={
+          <View
+            style={{
+              alignItems: 'center',
+              flex: 1,
+              justifyContent: 'center',
+              alignSelf: 'center',
+            }}
+          >
+            <Text style={{ fontSize: 16, color: '#666' }}>No data to show</Text>
+          </View>
+        }
         data={filteredJobs}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={item => item._id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => console.log(`Selected job: ${item.company}`)}
+            onPress={() => onjobclick(item)}
             style={styles.jobCard}
           >
             <Text style={styles.company}>{item.company}</Text>
-            <Text style={styles.role}>{item.role}</Text>
+            <Text style={styles.role}>{item.jobtitle}</Text>
             <Text style={[styles.status, { color: getTagColor(item.status) }]}>
               {item.status}
             </Text>

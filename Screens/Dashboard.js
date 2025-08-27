@@ -6,31 +6,49 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 import Card from '../Components/Card';
 import CardActivity from '../Components/CardActivity';
 function DashboardScreen(props) {
-  const cardtitle = ['total', 'interviews', 'offer', 'rejected'];
-  const cardcontent = ['10', '5', '2', '3'];
-  const colorCodes = ['black', 'blue', 'green', 'red'];
-  const recentActivities = [
-    { title: 'Applied for Job A', date: '2023-10-01', tag: 'offer' },
-    { title: 'Interviewed at Company B', date: '2023-10-02', tag: 'interview' },
-    {
-      title: 'Received Offer from Company C',
-      date: '2023-10-03',
-      tag: 'offer',
-    },
-    { title: 'Rejected by Company D', date: '2023-10-04', tag: 'rejected' },
+  const cardtitle = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
 
-    { title: 'Applied for Job E', date: '2023-10-05', tag: 'offer' },
-    { title: 'Interviewed at Company F', date: '2023-10-06', tag: 'interview' },
-    {
-      title: 'Received Offer from Company G',
-      date: '2023-10-07',
-      tag: 'offer',
-    },
-    { title: 'Rejected by Company H', date: '2023-10-08', tag: 'rejected' },
-  ];
+  const colorCodes = ['black', 'blue', 'green', 'red'];
+  const [recentActivities, setRecentActivities] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        const baseURL =
+          Platform.OS === 'android'
+            ? 'http://10.0.2.2:8080/api/v1/jobs'
+            : 'http://localhost:8080/api/v1/jobs';
+
+        const res = await axios.get(`${baseURL}/getjobs`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setRecentActivities(res.data);
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const cardcontent = cardtitle.map(status => {
+    if (status === 'All') {
+      return recentActivities.length; // total jobs
+    } else {
+      return recentActivities.filter(
+        recentActivity => recentActivity.status === status,
+      ).length;
+    }
+  });
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.gridContainer}>
@@ -57,11 +75,29 @@ function DashboardScreen(props) {
       </View>
       <View style={styles.activitiesContainer}>
         <FlatList
-          data={recentActivities}
+          ListEmptyComponent={
+            <View
+              style={{
+                alignItems: 'center',
+                flex: 1,
+                justifyContent: 'center',
+                alignSelf: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 16, color: '#666' }}>
+                No data to show
+              </Text>
+            </View>
+          }
+          data={recentActivities.slice(0, 10)}
           renderItem={({ item }) => (
-            <CardActivity title={item.title} date={item.date} tag={item.tag} />
+            <CardActivity
+              title={item.company}
+              date={item.date.toString().slice(0, 10)}
+              tag={item.status}
+            />
           )}
-          keyExtractor={item => item.title}
+          keyExtractor={item => item._id.toString()}
         />
       </View>
     </SafeAreaView>
