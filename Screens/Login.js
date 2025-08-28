@@ -99,7 +99,7 @@ function LoginScreen(props) {
         <View style={styles.maincontainer}>
           <LoginWithInput
             iconname="mail-outline"
-            placeholder="Email"
+            placeholder="Username"
             setValue={setEmail}
           />
           <LoginWithInput
