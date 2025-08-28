@@ -42,7 +42,7 @@ function LoginScreen(props) {
         email: email,
         password: password,
       });
-      console.log(data);
+      // console.log(data);
       setLoading(false);
       if (data) {
         await AsyncStorage.setItem('accessToken', data.tokens.accessToken);

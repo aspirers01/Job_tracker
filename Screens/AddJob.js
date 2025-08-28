@@ -14,9 +14,9 @@ import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-function AddJobScreen({ navigation }) {
+function AddJobScreen(props) {
   const route = useRoute();
-  const jobToEdit = route.params?.job; // coming from FlatList item press
+  const jobToEdit = route.params?.jobToEdit; // coming from FlatList item press
 
   // States
   const [company, setCompany] = useState('');
@@ -26,6 +26,7 @@ function AddJobScreen({ navigation }) {
   const [link, setLink] = useState('');
   const [date, setDate] = useState(null);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [note, setNote] = useState('');
 
   async function jobHandler() {
     // Make API call to save job
@@ -37,8 +38,8 @@ function AddJobScreen({ navigation }) {
           ? 'http://10.0.2.2:8080/api/v1/jobs'
           : 'http://localhost:8080/api/v1/jobs';
       const token = await AsyncStorage.getItem('accessToken');
-      console.log(token);
-      const jobdata = { company, jobtitle, status, date, link };
+      // console.log(token);
+      const jobdata = { company, jobtitle, status, date, link, note };
       let res;
       if (jobToEdit) {
         res = await axios.put(`${baseURL}/update/${jobToEdit._id}`, jobdata, {
@@ -47,14 +48,14 @@ function AddJobScreen({ navigation }) {
           },
         });
       } else {
-        console.log('Creating new job:', jobdata);
+        // console.log('Creating new job:', jobdata);
         res = await axios.post(`${baseURL}/create`, jobdata, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        console.log('Job saved successfully:', res.data);
+        // console.log('Job saved successfully:', res.data);
       }
     } catch (error) {
       console.error(
@@ -75,6 +76,9 @@ function AddJobScreen({ navigation }) {
       setStatus(jobToEdit.status || 'Applied');
       setLink(jobToEdit.link || '');
       setDate(jobToEdit.date ? new Date(jobToEdit.date) : null);
+      setNote(jobToEdit.note || '');
+    } else {
+      console.log('job id no found ');
     }
   }, [jobToEdit]);
 
@@ -95,7 +99,7 @@ function AddJobScreen({ navigation }) {
   // Save / Update Job
   const handleSave = () => {
     jobHandler();
-    navigation.goBack();
+    props.navigation.replace('Main');
   };
 
   return (
@@ -148,6 +152,14 @@ function AddJobScreen({ navigation }) {
           value={link}
           onChangeText={setLink}
           placeholder="Enter job link"
+        />
+        <Text style={styles.label}>Notes (Optional)</Text>
+        <TextInput
+          style={[styles.input, { height: 120, textAlignVertical: 'top' }]}
+          value={note}
+          onChangeText={setNote}
+          placeholder="Add any relevant notes here..."
+          multiline={true}
         />
 
         <TouchableOpacity style={styles.addButton} onPress={handleSave}>
