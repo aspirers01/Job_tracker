@@ -1,21 +1,19 @@
 
 
-import { StatusBar, StyleSheet, useColorScheme, View,Text } from 'react-native';
-import LoginScreen from './Screens/Login';
-import RegisterScreen from './Screens/Register';
-import TestScreen from './Screens/test';
-import DashboardScreen from './Screens/Dashboard';
-import SettingsScreen from './Screens/Settings';
-import ApplicationsScreen from './Screens/Applications';
+import {  StyleSheet } from 'react-native';
+
 import MyStackNavigator from './Navigation/StackNavigator';
+import { JobsProvider } from './context/JobContext';
 
 function App() {
  
 
   return (
    <>
-  
-    <MyStackNavigator />
+    <JobsProvider>
+   <MyStackNavigator />
+    </JobsProvider>
+    
    </>
      
     

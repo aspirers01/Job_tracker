@@ -7,38 +7,21 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import SearchBar from '../Components/SearchBar';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Button from '../Components/Button';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-
+import { useCallback, useEffect, useState } from 'react';
+import { JobsContext } from '../context/JobContext';
+import { useContext } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 function ApplicationsScreen(props) {
-  const [jobs, setJobs] = useState([]);
+  const { jobs, loading, fetchJobs } = useContext(JobsContext);
   const [selectedFilter, setSelectedFilter] = useState('All');
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('accessToken');
+  const [searchQuery, setSearchQuery] = useState('');
 
-        const baseURL =
-          Platform.OS === 'android'
-            ? 'http://10.0.2.2:8080/api/v1/jobs'
-            : 'http://localhost:8080/api/v1/jobs';
-
-        const res = await axios.get(`${baseURL}/getjobs`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setJobs(res.data);
-        console.log(res.data);
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchJobs(); // will always refetch on focus
+    }, [fetchJobs]),
+  );
 
   const FILTERS = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
   const getTagColor = tag => {
@@ -62,15 +45,22 @@ function ApplicationsScreen(props) {
     // Navigate to job details screen or perform any action
   };
 
-  const filteredJobs =
-    selectedFilter === 'All'
-      ? jobs
-      : jobs.filter(job => job.status === selectedFilter);
+  const filteredJobs = jobs.filter(job => {
+    const matchesFilter =
+      selectedFilter === 'All' || job.status === selectedFilter;
+
+    const matchesSearch =
+      searchQuery.trim() === '' ||
+      job.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.jobtitle.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searcharea}>
-        <SearchBar />
+        <SearchBar value={searchQuery} setValue={setSearchQuery} />
       </View>
       <View style={styles.addbutton}>
         <Button

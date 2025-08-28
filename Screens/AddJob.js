@@ -11,13 +11,14 @@ import {
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
-import axios from 'axios';
+import { JobsContext } from '../context/JobContext';
+import { useContext } from 'react';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 function AddJobScreen(props) {
   const route = useRoute();
   const jobToEdit = route.params?.jobToEdit; // coming from FlatList item press
-
+  const { addOrUpdateJob } = useContext(JobsContext);
   // States
   const [company, setCompany] = useState('');
   const [jobtitle, setJobtitle] = useState('');
@@ -28,51 +29,12 @@ function AddJobScreen(props) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [note, setNote] = useState('');
 
-  async function jobHandler() {
-    // Make API call to save job
-
-    try {
-      setLoading(true);
-      const baseURL =
-        Platform.OS === 'android'
-          ? 'http://10.0.2.2:8080/api/v1/jobs'
-          : 'http://localhost:8080/api/v1/jobs';
-      const token = await AsyncStorage.getItem('accessToken');
-      // console.log(token);
-      const jobdata = { company, jobtitle, status, date, link, note };
-      let res;
-      if (jobToEdit) {
-        res = await axios.put(`${baseURL}/update/${jobToEdit._id}`, jobdata, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      } else {
-        // console.log('Creating new job:', jobdata);
-        res = await axios.post(`${baseURL}/create`, jobdata, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        // console.log('Job saved successfully:', res.data);
-      }
-    } catch (error) {
-      console.error(
-        'Error saving job:',
-        error.response?.data || error.message, // ✅ show actual backend error
-        error.response?.status, // ✅ show status code
-      );
-      Alert.alert('Error', 'Failed to save job. Please try again.');
-    }
-  }
   // Pre-fill if editing
   useEffect(() => {
     if (jobToEdit) {
       console.log('jobToEdit:', jobToEdit);
       setCompany(jobToEdit.company || '');
       setJobtitle(jobToEdit.jobtitle || '');
-
       setStatus(jobToEdit.status || 'Applied');
       setLink(jobToEdit.link || '');
       setDate(jobToEdit.date ? new Date(jobToEdit.date) : null);
@@ -97,9 +59,17 @@ function AddJobScreen(props) {
   };
 
   // Save / Update Job
-  const handleSave = () => {
-    jobHandler();
-    props.navigation.replace('Main');
+  const handleSave = async () => {
+    if (!company || !jobtitle || !status || !date) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields.');
+      return;
+    }
+
+    await addOrUpdateJob(
+      { company, jobtitle, status, date, link, note },
+      jobToEdit?._id,
+    );
+    props.navigation.goBack();
   };
 
   return (

@@ -13,6 +13,7 @@ import Button from '../Components/Button';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect } from 'react';
+import validateToken from '../Utils/ValidationToken';
 function LoginScreen(props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +22,18 @@ function LoginScreen(props) {
     const checkLogin = async () => {
       const token = await AsyncStorage.getItem('accessToken');
       if (token) {
-        props.navigation.replace('Main');
+        const isvalid = await validateToken();
+        if (isvalid) {
+          props.navigation.replace('Main');
+        } else {
+          const newtoken = await refreshAccessToken();
+          if (newtoken) {
+            props.navigation.replace('Main');
+          } else {
+            await AsyncStorage.removeItem('accessToken');
+            await AsyncStorage.removeItem('user');
+          }
+        }
       }
     };
     checkLogin();
@@ -36,14 +48,15 @@ function LoginScreen(props) {
       }
       const baseURL =
         Platform.OS === 'android'
-          ? 'http://10.0.2.2:8080/api/v1/users/login'
-          : 'http://localhost:8080/api/v1/users/login';
+          ? 'https://job-trackerbackendapi.onrender.com/api/v1/users/login'
+          : 'https://job-trackerbackendapi.onrender.com/api/v1/users/login';
       const { data } = await axios.post(baseURL, {
         email: email,
         password: password,
       });
-      // console.log(data);
+
       setLoading(false);
+      console.log('data is this ', data);
       if (data) {
         await AsyncStorage.setItem('accessToken', data.tokens.accessToken);
         await AsyncStorage.setItem('refreshToken', data.tokens.refreshToken);
@@ -54,9 +67,17 @@ function LoginScreen(props) {
 
       return;
     } catch (error) {
-      console.log(error);
       setLoading(false);
-      alert('Invalid Credentials');
+      if (error.response) {
+        console.log('Backend responded with error:', error.response.data);
+        alert(error.response.data.message || 'Login failed');
+      } else if (error.request) {
+        console.log('No response received:', error.request);
+        alert('Network error, try again');
+      } else {
+        console.log('Axios error:', error.message);
+        alert('Unexpected error, try again');
+      }
     }
   }
   return (

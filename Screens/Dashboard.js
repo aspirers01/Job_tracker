@@ -6,47 +6,24 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+
+import { JobsContext } from '../context/JobContext';
+import { useContext } from 'react';
+
 import Card from '../Components/Card';
 import CardActivity from '../Components/CardActivity';
 function DashboardScreen(props) {
+  const { jobs } = useContext(JobsContext); // 👈 get jobs globally
+
   const cardtitle = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
+  const colorCodes = ['black', 'blue', 'green', 'red', 'orange']; // make sure length matches
 
-  const colorCodes = ['black', 'blue', 'green', 'red'];
-  const [recentActivities, setRecentActivities] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('accessToken');
-
-        const baseURL =
-          Platform.OS === 'android'
-            ? 'http://10.0.2.2:8080/api/v1/jobs'
-            : 'http://localhost:8080/api/v1/jobs';
-
-        const res = await axios.get(`${baseURL}/getjobs`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setRecentActivities(res.data);
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  // Count jobs by status
   const cardcontent = cardtitle.map(status => {
     if (status === 'All') {
-      return recentActivities.length; // total jobs
+      return jobs.length;
     } else {
-      return recentActivities.filter(
-        recentActivity => recentActivity.status === status,
-      ).length;
+      return jobs.filter(job => job.status === status).length;
     }
   });
   return (
@@ -89,7 +66,7 @@ function DashboardScreen(props) {
               </Text>
             </View>
           }
-          data={recentActivities.slice(0, 10)}
+          data={jobs.slice(0, 10)}
           renderItem={({ item }) => (
             <CardActivity
               title={item.company}
