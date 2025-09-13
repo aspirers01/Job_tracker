@@ -1,30 +1,29 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Pressable, TextInput, StyleSheet } from 'react-native';
 
-function SearchBar(props) {
+function CustomSearchBar(props) {
   return (
-    <Pressable style={styles.container}>
-      <Ionicons name="search" size={22} color="black" />
-      <TextInput
-        style={{ padding: 5, fontSize: 20 }}
-        placeholder="Search job here.."
-        value={props.value}
-        onChangeText={text => props.setValue(text)}
-      />
-    </Pressable>
+    <TextInput
+      placeholder="Search applications..."
+      placeholderTextColor="#999"
+      style={styles.searchBar}
+      value={props.value}
+      onChangeText={text => props.setValue(text)}
+      clearButtonMode="while-editing"
+      returnKeyType="search"
+    />
   );
 }
-export default SearchBar;
+export default CustomSearchBar;
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 7,
-    gap: 10,
-    backgroundColor: 'white',
-    borderRadius: 3,
-    flex: 1,
-    padding: 8,
+  searchBar: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 15,
+    fontSize: 20,
+    marginBottom: 50,
+    marginHorizontal: 20,
   },
 });

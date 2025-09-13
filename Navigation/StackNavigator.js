@@ -18,6 +18,7 @@ const MyStackNavigator = () => {
       <Tab.Navigator
         screenOptions={{
           headerTitleAlign: 'left',
+          headerShown: false,
         }}
       >
         <Tab.Screen
@@ -25,6 +26,7 @@ const MyStackNavigator = () => {
           component={ApplicationsScreen}
           options={{
             tabBarLabel: 'Applications',
+
             tabBarStyle: { backgroundColor: 'white' },
             tabBarIcon: ({ focused }) =>
               focused ? (

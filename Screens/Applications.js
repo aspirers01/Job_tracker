@@ -2,16 +2,23 @@ import {
   View,
   Text,
   SafeAreaView,
+  TextInput,
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
-import SearchBar from '../Components/SearchBar';
-import Button from '../Components/Button';
+
 import { useCallback, useEffect, useState } from 'react';
 import { JobsContext } from '../context/JobContext';
 import { useContext } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
+import { ScrollView } from 'react-native-gesture-handler';
+import CustomSearchBar from '../Components/SearchBar';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FilterCard from '../Components/FilterCard';
+import JobCard from '../Components/JobCard';
 function ApplicationsScreen(props) {
   const { jobs, loading, fetchJobs } = useContext(JobsContext);
   const [selectedFilter, setSelectedFilter] = useState('All');
@@ -23,7 +30,7 @@ function ApplicationsScreen(props) {
     }, [fetchJobs]),
   );
 
-  const FILTERS = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
+  // const FILTERS = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
   const getTagColor = tag => {
     switch (tag) {
       case 'Offer':
@@ -40,7 +47,6 @@ function ApplicationsScreen(props) {
   };
 
   const onjobclick = job => {
-    console.log('Selected job:', job);
     props.navigation.navigate('AddJobScreen', { jobToEdit: job });
     // Navigate to job details screen or perform any action
   };
@@ -58,129 +64,138 @@ function ApplicationsScreen(props) {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.searcharea}>
-        <SearchBar value={searchQuery} setValue={setSearchQuery} />
-      </View>
-      <View style={styles.addbutton}>
-        <Button
-          title="+ Add Job"
-          onPress={() => props.navigation.navigate('AddJobScreen')}
-        />
-      </View>
-      <View style={styles.filterRow}>
-        {FILTERS.map(filter => (
-          <TouchableOpacity
-            key={filter}
-            style={[
-              styles.filterButton,
-              selectedFilter === filter && styles.filterButtonActive,
-            ]}
-            onPress={() => setSelectedFilter(filter)}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                selectedFilter === filter && styles.filterTextActive,
-              ]}
-            >
-              {filter}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <FlatList
-        ListEmptyComponent={
-          <View
-            style={{
-              alignItems: 'center',
-              flex: 1,
-              justifyContent: 'center',
-              alignSelf: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 16, color: '#666' }}>No data to show</Text>
-          </View>
-        }
-        data={filteredJobs}
-        keyExtractor={item => item._id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => onjobclick(item)}
-            style={styles.jobCard}
-          >
-            <Text style={styles.company}>{item.company}</Text>
-            <Text style={styles.role}>{item.jobtitle}</Text>
-            <Text style={[styles.status, { color: getTagColor(item.status) }]}>
-              {item.status}
-            </Text>
-          </TouchableOpacity>
-        )}
+    <>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="light-content"
       />
-    </SafeAreaView>
+      <ScrollView style={styles.container}>
+        <LinearGradient
+          colors={['#3059FB', '#9419F9', '#5C36F6']}
+          angle={45}
+          useAngle={true}
+        >
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.headerTitle}>Job Applications</Text>
+              <Text style={styles.headerSubtitle}>
+                {filteredJobs.length} total applications
+              </Text>
+            </View>
+          </View>
+          <CustomSearchBar value={searchQuery} setValue={setSearchQuery} />
+        </LinearGradient>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.statsRow}
+        >
+          <FilterCard
+            bgcolor={'#cae3feff'}
+            name={'work'}
+            color="#2563eb"
+            count={jobs.length}
+            label="All"
+            selected={selectedFilter === 'All'}
+            onPress={() => setSelectedFilter('All')}
+          />
+          <FilterCard
+            bgcolor={'#cae3feff'}
+            name={'schedule'}
+            color="#2563eb"
+            count={jobs.filter(job => job.status === 'Applied').length}
+            label="Applied"
+            selected={selectedFilter === 'Applied'}
+            onPress={() => setSelectedFilter('Applied')}
+          />
+          <FilterCard
+            bgcolor={'#fdffc9ff'}
+            name={'check-circle'}
+            color="rgba(244, 244, 10, 1)"
+            count={jobs.filter(job => job.status === 'Interview').length}
+            label="Interview"
+            selected={selectedFilter === 'Interview'}
+            onPress={() => setSelectedFilter('Interview')}
+          />
+          <FilterCard
+            bgcolor={'#d7fab1ff'}
+            name={'emoji-events'}
+            color="#16a34a"
+            count={jobs.filter(job => job.status === 'Offer').length}
+            label="Offer"
+            selected={selectedFilter === 'Offer'}
+            onPress={() => setSelectedFilter('Offer')}
+          />
+          <FilterCard
+            bgcolor={'#FFEAEA'}
+            name={'sentiment-dissatisfied'}
+            color="#db1c1cff"
+            count={jobs.filter(job => job.status === 'Rejected').length}
+            label="Rejected"
+            selected={selectedFilter === 'Rejected'}
+            onPress={() => setSelectedFilter('Rejected')}
+          />
+        </ScrollView>
+
+        <Text style={styles.sectionTitle}>Recent Applications</Text>
+        <Text style={styles.sectionSubtitle}>
+          Track your job application progress
+        </Text>
+
+        <FlatList
+          data={filteredJobs}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => onjobclick(item)}>
+              <JobCard job={item} getTagColor={getTagColor(item.status)} />
+            </TouchableOpacity>
+          )}
+        />
+      </ScrollView>
+    </>
   );
 }
-
 export default ApplicationsScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#e3e8f4ff',
   },
-  searcharea: {
-    backgroundColor: '#0896ddff',
-    padding: 10,
+  // gradient and header styles
+  headerTop: {
+    marginTop: 100,
+    marginBottom: 20,
+    marginStart: 20,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 10,
-    marginBottom: 10,
   },
-  filterRow: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  filterButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginRight: 8,
-  },
-  filterButtonActive: {
-    backgroundColor: '#ddd',
-    borderColor: '#888',
-  },
-  filterText: {
-    color: '#555',
-  },
-  filterTextActive: {
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  jobCard: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-  },
-  company: { fontWeight: 'bold', fontSize: 16 },
-  role: { color: '#666' },
-  status: { color: '#999', fontSize: 12 },
-
-  fabText: {
+  headerTitle: {
     color: '#fff',
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
   },
-  addbutton: {
-    backgroundColor: '#109bfeff',
-    padding: 10,
-    width: 100,
-    marginEnd: 10,
-    alignSelf: 'flex-end',
-    borderRadius: 10,
-    marginTop: 5,
+  headerSubtitle: { color: '#e5e7eb', marginTop: 4, fontSize: 18 },
+
+  // Job application statistics
+  statsRow: {
+    flexDirection: 'row',
+    flex: 1,
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  // Section
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginLeft: 20,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginLeft: 20,
     marginBottom: 10,
   },
 });
