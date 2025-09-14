@@ -16,7 +16,6 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { ScrollView } from 'react-native-gesture-handler';
 import CustomSearchBar from '../Components/SearchBar';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FilterCard from '../Components/FilterCard';
 import JobCard from '../Components/JobCard';
 function ApplicationsScreen(props) {
@@ -29,22 +28,6 @@ function ApplicationsScreen(props) {
       fetchJobs(); // will always refetch on focus
     }, [fetchJobs]),
   );
-
-  // const FILTERS = ['All', 'Applied', 'Interview', 'Offer', 'Rejected'];
-  const getTagColor = tag => {
-    switch (tag) {
-      case 'Offer':
-        return 'green';
-      case 'Interview':
-        return 'blue';
-      case 'Rejected':
-        return 'red';
-      case 'Applied':
-        return 'orange';
-      default:
-        return '#999'; // default gray color
-    }
-  };
 
   const onjobclick = job => {
     props.navigation.navigate('AddJobScreen', { jobToEdit: job });
@@ -64,95 +47,95 @@ function ApplicationsScreen(props) {
   });
 
   return (
-    <>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="light-content"
-      />
-      <ScrollView style={styles.container}>
-        <LinearGradient
-          colors={['#3059FB', '#9419F9', '#5C36F6']}
-          angle={45}
-          useAngle={true}
-        >
-          <View style={styles.headerTop}>
-            <View>
-              <Text style={styles.headerTitle}>Job Applications</Text>
-              <Text style={styles.headerSubtitle}>
-                {filteredJobs.length} total applications
-              </Text>
+    <FlatList
+      style={styles.container}
+      data={filteredJobs}
+      renderItem={({ item }) => (
+        <TouchableOpacity onPress={() => onjobclick(item)}>
+          <JobCard job={item} />
+        </TouchableOpacity>
+      )}
+      ListHeaderComponent={
+        <>
+          <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="light-content"
+          />
+          <LinearGradient
+            colors={['#3059FB', '#9419F9', '#5C36F6']}
+            angle={45}
+            useAngle={true}
+          >
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={styles.headerTitle}>Job Applications</Text>
+                <Text style={styles.headerSubtitle}>
+                  {filteredJobs.length} total applications
+                </Text>
+              </View>
             </View>
-          </View>
-          <CustomSearchBar value={searchQuery} setValue={setSearchQuery} />
-        </LinearGradient>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.statsRow}
-        >
-          <FilterCard
-            bgcolor={'#cae3feff'}
-            name={'work'}
-            color="#2563eb"
-            count={jobs.length}
-            label="All"
-            selected={selectedFilter === 'All'}
-            onPress={() => setSelectedFilter('All')}
-          />
-          <FilterCard
-            bgcolor={'#cae3feff'}
-            name={'schedule'}
-            color="#2563eb"
-            count={jobs.filter(job => job.status === 'Applied').length}
-            label="Applied"
-            selected={selectedFilter === 'Applied'}
-            onPress={() => setSelectedFilter('Applied')}
-          />
-          <FilterCard
-            bgcolor={'#fdffc9ff'}
-            name={'check-circle'}
-            color="rgba(244, 244, 10, 1)"
-            count={jobs.filter(job => job.status === 'Interview').length}
-            label="Interview"
-            selected={selectedFilter === 'Interview'}
-            onPress={() => setSelectedFilter('Interview')}
-          />
-          <FilterCard
-            bgcolor={'#d7fab1ff'}
-            name={'emoji-events'}
-            color="#16a34a"
-            count={jobs.filter(job => job.status === 'Offer').length}
-            label="Offer"
-            selected={selectedFilter === 'Offer'}
-            onPress={() => setSelectedFilter('Offer')}
-          />
-          <FilterCard
-            bgcolor={'#FFEAEA'}
-            name={'sentiment-dissatisfied'}
-            color="#db1c1cff"
-            count={jobs.filter(job => job.status === 'Rejected').length}
-            label="Rejected"
-            selected={selectedFilter === 'Rejected'}
-            onPress={() => setSelectedFilter('Rejected')}
-          />
-        </ScrollView>
+            <CustomSearchBar value={searchQuery} setValue={setSearchQuery} />
+          </LinearGradient>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.statsRow}
+          >
+            <FilterCard
+              bgcolor={'#cae3feff'}
+              name={'work'}
+              color="#2563eb"
+              count={jobs.length}
+              label="All"
+              selected={selectedFilter === 'All'}
+              onPress={() => setSelectedFilter('All')}
+            />
+            <FilterCard
+              bgcolor={'#cae3feff'}
+              name={'schedule'}
+              color="#2563eb"
+              count={jobs.filter(job => job.status === 'Applied').length}
+              label="Applied"
+              selected={selectedFilter === 'Applied'}
+              onPress={() => setSelectedFilter('Applied')}
+            />
+            <FilterCard
+              bgcolor={'#fdffc9ff'}
+              name={'check-circle'}
+              color="rgba(244, 244, 10, 1)"
+              count={jobs.filter(job => job.status === 'Interview').length}
+              label="Interview"
+              selected={selectedFilter === 'Interview'}
+              onPress={() => setSelectedFilter('Interview')}
+            />
+            <FilterCard
+              bgcolor={'#d7fab1ff'}
+              name={'emoji-events'}
+              color="#16a34a"
+              count={jobs.filter(job => job.status === 'Offer').length}
+              label="Offer"
+              selected={selectedFilter === 'Offer'}
+              onPress={() => setSelectedFilter('Offer')}
+            />
+            <FilterCard
+              bgcolor={'#FFEAEA'}
+              name={'sentiment-dissatisfied'}
+              color="#db1c1cff"
+              count={jobs.filter(job => job.status === 'Rejected').length}
+              label="Rejected"
+              selected={selectedFilter === 'Rejected'}
+              onPress={() => setSelectedFilter('Rejected')}
+            />
+          </ScrollView>
 
-        <Text style={styles.sectionTitle}>Recent Applications</Text>
-        <Text style={styles.sectionSubtitle}>
-          Track your job application progress
-        </Text>
-
-        <FlatList
-          data={filteredJobs}
-          renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => onjobclick(item)}>
-              <JobCard job={item} getTagColor={getTagColor(item.status)} />
-            </TouchableOpacity>
-          )}
-        />
-      </ScrollView>
-    </>
+          <Text style={styles.sectionTitle}>Recent Applications</Text>
+          <Text style={styles.sectionSubtitle}>
+            Track your job application progress
+          </Text>
+        </>
+      }
+    />
   );
 }
 export default ApplicationsScreen;
@@ -182,7 +165,6 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     flex: 1,
-    width: '100%',
     paddingHorizontal: 10,
   },
   // Section
