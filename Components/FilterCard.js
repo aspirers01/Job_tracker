@@ -21,7 +21,8 @@ function FilterCard(props) {
 export default FilterCard;
 const styles = StyleSheet.create({
   statsCard: {
-    width: '25%',
+    width: 100,
+    height: 100,
     borderRadius: 10,
     padding: 10,
     alignItems: 'flex-start',

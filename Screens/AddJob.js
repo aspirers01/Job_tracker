@@ -9,17 +9,16 @@ import {
   Alert,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
 import { JobsContext } from '../context/JobContext';
-import { useContext } from 'react';
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useContext, useState, useEffect } from 'react';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 function AddJobScreen(props) {
   const route = useRoute();
-  const jobToEdit = route.params?.jobToEdit; // coming from FlatList item press
+  const jobToEdit = route.params?.jobToEdit;
   const { addOrUpdateJob } = useContext(JobsContext);
-  // States
+
   const [company, setCompany] = useState('');
   const [jobtitle, setJobtitle] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,18 +28,14 @@ function AddJobScreen(props) {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [note, setNote] = useState('');
 
-  // Pre-fill if editing
   useEffect(() => {
     if (jobToEdit) {
-      console.log('jobToEdit:', jobToEdit);
       setCompany(jobToEdit.company || '');
       setJobtitle(jobToEdit.jobtitle || '');
       setStatus(jobToEdit.status || 'Applied');
       setLink(jobToEdit.link || '');
       setDate(jobToEdit.date ? new Date(jobToEdit.date) : null);
       setNote(jobToEdit.note || '');
-    } else {
-      console.log('job id no found ');
     }
   }, [jobToEdit]);
 
@@ -50,6 +45,7 @@ function AddJobScreen(props) {
     setDate(selectedDate);
     hideDatePicker();
   };
+
   const formatDate = date => {
     if (!date) return null;
     const day = String(date.getDate()).padStart(2, '0');
@@ -58,7 +54,6 @@ function AddJobScreen(props) {
     return `${day}/${month}/${year}`;
   };
 
-  // Save / Update Job
   const handleSave = async () => {
     if (!company || !jobtitle || !status || !date) {
       Alert.alert('Missing Fields', 'Please fill in all required fields.');
@@ -69,35 +64,50 @@ function AddJobScreen(props) {
       { company, jobtitle, status, date, link, note },
       jobToEdit?._id,
     );
-    props.navigation.goBack();
+    props.navigation.navigate('Main');
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <MaterialIcons name="work" size={28} color="#007AFF" />
+          <View style={{ marginLeft: 10 }}>
+            <Text style={styles.headerTitle}>Job Application</Text>
+            <Text style={styles.headerSubtitle}>
+              Track your application progress
+            </Text>
+          </View>
+        </View>
+
+        {/* Company Name */}
         <Text style={styles.label}>Company Name</Text>
         <TextInput
           style={styles.input}
           value={company}
           onChangeText={setCompany}
-          placeholder="Enter company"
+          placeholder="e.g. Google, Apple, Microsoft"
+          placeholderTextColor="#aaa"
         />
 
+        {/* Job Title */}
         <Text style={styles.label}>Job Title</Text>
         <TextInput
           style={styles.input}
           value={jobtitle}
           onChangeText={setJobtitle}
-          placeholder="Enter job title"
+          placeholder="e.g. Senior Frontend Developer"
+          placeholderTextColor="#aaa"
         />
 
+        {/* Application Date */}
         <Text style={styles.label}>Application Date</Text>
-        <TouchableOpacity onPress={showDatePicker} style={styles.dateButton}>
-          <Text style={styles.dateText}>
-            {date ? formatDate(date) : 'Select a Date'}
+        <TouchableOpacity onPress={showDatePicker} style={styles.input}>
+          <Text style={{ fontSize: 16, color: date ? '#000' : '#aaa' }}>
+            {date ? formatDate(date) : 'dd/mm/yyyy'}
           </Text>
         </TouchableOpacity>
-
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
           mode="date"
@@ -106,77 +116,131 @@ function AddJobScreen(props) {
           display="spinner"
         />
 
+        {/* Status */}
         <Text style={styles.label}>Status</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker selectedValue={status} onValueChange={setStatus}>
-            <Picker.Item label="Applied" value="Applied" />
-            <Picker.Item label="Interview" value="Interview" />
-            <Picker.Item label="Offer" value="Offer" />
-            <Picker.Item label="Rejected" value="Rejected" />
-          </Picker>
+        <View style={styles.statusRow}>
+          {['Applied', 'Interview', 'Offer', 'Rejected'].map(option => (
+            <TouchableOpacity
+              key={option}
+              style={[
+                styles.statusButton,
+                status === option && styles.statusButtonActive,
+              ]}
+              onPress={() => setStatus(option)}
+            >
+              <Text
+                style={[
+                  styles.statusText,
+                  status === option && styles.statusTextActive,
+                ]}
+              >
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
+        {/* Link */}
         <Text style={styles.label}>Link to Job Posting (Optional)</Text>
         <TextInput
           style={styles.input}
           value={link}
           onChangeText={setLink}
-          placeholder="Enter job link"
+          placeholder="https://company.com/jobs/frontend-dev"
+          placeholderTextColor="#aaa"
         />
+
+        {/* Notes */}
         <Text style={styles.label}>Notes (Optional)</Text>
         <TextInput
-          style={[styles.input, { height: 120, textAlignVertical: 'top' }]}
+          style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
           value={note}
           onChangeText={setNote}
           placeholder="Add any relevant notes here..."
+          placeholderTextColor="#aaa"
           multiline={true}
         />
+      </ScrollView>
 
+      {/* Add Button Fixed at Bottom */}
+      <View style={styles.footer}>
         <TouchableOpacity style={styles.addButton} onPress={handleSave}>
+          <MaterialIcons name="work" size={20} color="#fff" />
           <Text style={styles.addButtonText}>
-            {loading ? 'Please wait...' : jobToEdit ? 'Update Job' : 'Add Job'}
+            {loading
+              ? 'Please wait...'
+              : jobToEdit
+              ? 'Update Job'
+              : 'Add Job Application'}
           </Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 export default AddJobScreen;
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-  container: { padding: 20 },
-  label: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  safeArea: { flex: 1, backgroundColor: '#f9fafb' },
+  container: { padding: 20, paddingBottom: 120 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  headerTitle: { fontSize: 18, fontWeight: '700', color: '#111' },
+  headerSubtitle: { fontSize: 14, color: '#666' },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 6, marginTop: 12 },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 14,
     fontSize: 16,
-  },
-  dateButton: {
-    padding: 12,
+    marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    backgroundColor: '#f9f9f9',
-    marginBottom: 16,
+    borderColor: '#eee',
   },
-  dateText: { fontSize: 16, color: '#333' },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+  statusRow: { flexDirection: 'row', flexWrap: 'wrap', marginVertical: 10 },
+  statusButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
     borderRadius: 8,
-    marginBottom: 16,
-    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  statusButtonActive: {
+    backgroundColor: '#e0edff',
+    borderColor: '#007AFF',
+  },
+  statusText: { color: '#444', fontWeight: '500' },
+  statusTextActive: { color: '#007AFF', fontWeight: '600' },
+  footer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: '#eee',
+    backgroundColor: '#fff',
   },
   addButton: {
+    flexDirection: 'row',
     backgroundColor: '#007AFF',
-    padding: 15,
-    borderRadius: 10,
+    padding: 16,
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
   },
-  addButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
 });

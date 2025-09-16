@@ -9,6 +9,7 @@ import SettingsScreen from '../Screens/Settings';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import AddJobScreen from '../Screens/AddJob';
+import JobinfoScreen from '../Screens/JobInfoScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -86,7 +87,24 @@ const MyStackNavigator = () => {
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
         <Stack.Screen name="Main" component={BottomTab} />
-        <Stack.Screen name="AddJobScreen" component={AddJobScreen} />
+        <Stack.Screen
+          name="AddJobScreen"
+          component={AddJobScreen}
+          options={{
+            headerBackVisible: true,
+            headerShown: true,
+            title: 'Add New Job',
+          }}
+        />
+        <Stack.Screen
+          name="JobInfoScreen"
+          component={JobinfoScreen}
+          options={{
+            headerBackVisible: true,
+            headerShown: true,
+            title: '',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

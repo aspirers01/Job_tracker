@@ -6,7 +6,7 @@ const getTagColor = tag => {
     case 'Offer':
       return '#16a34a';
     case 'Interview':
-      return 'rgba(244, 244, 10, 1)';
+      return '#f66d0bff';
     case 'Rejected':
       return '#db1c1cff';
     case 'Applied':

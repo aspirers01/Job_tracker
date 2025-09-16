@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Platform,
   View,
-  Alert,
 } from 'react-native';
 import LoginWithInput from '../Components/LoginwithInput';
 import { use, useState } from 'react';
