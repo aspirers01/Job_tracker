@@ -19,11 +19,7 @@ function JobinfoScreen(props) {
   const deleteJob = async jobId => {
     try {
       const token = await AsyncStorage.getItem('accessToken');
-      const baseURL =
-        Platform.OS === 'android'
-          ? 'https://job-trackerbackendapi.onrender.com/api/v1/jobs'
-          : 'https://job-trackerbackendapi.onrender.com/api/v1/jobs';
-
+      const baseURL = 'https://job-trackerbackendapi.onrender.com/api/v1/jobs';
       const res = await axios.delete(`${baseURL}/delete/${jobId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });

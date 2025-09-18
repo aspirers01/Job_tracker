@@ -10,8 +10,19 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import AddJobScreen from '../Screens/AddJob';
 import JobinfoScreen from '../Screens/JobInfoScreen';
+import ResetPasswordScreen from '../Screens/ResetPasswordScreen';
+import ForgotPasswordScreen from '../Screens/ForgetPasswordScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const linking = {
+  prefixes: ['jobtracker://'],
+  config: {
+    screens: {
+      ForgotPasswordScreen: 'forgot-password',
+      ResetPasswordScreen: 'reset-password/:token',
+    },
+  },
+};
 
 const MyStackNavigator = () => {
   function BottomTab() {
@@ -77,7 +88,7 @@ const MyStackNavigator = () => {
     );
   }
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         initialRouteName="LoginScreen"
         screenOptions={{
@@ -99,6 +110,24 @@ const MyStackNavigator = () => {
         <Stack.Screen
           name="JobInfoScreen"
           component={JobinfoScreen}
+          options={{
+            headerBackVisible: true,
+            headerShown: true,
+            title: '',
+          }}
+        />
+        <Stack.Screen
+          name="ResetPasswordScreen"
+          component={ResetPasswordScreen}
+          options={{
+            headerBackVisible: true,
+            headerShown: true,
+            title: '',
+          }}
+        />
+        <Stack.Screen
+          name="ForgotPasswordScreen"
+          component={ForgotPasswordScreen}
           options={{
             headerBackVisible: true,
             headerShown: true,

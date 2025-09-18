@@ -114,7 +114,12 @@ function LoginScreen(props) {
             }}
           >
             <Text>Keep me logged in</Text>
-            <Text style={{ color: '#007fff' }}>Forget Password</Text>
+            <Text
+              style={{ color: '#007fff' }}
+              onPress={() => props.navigation.navigate('ForgotPasswordScreen')}
+            >
+              Forget Password
+            </Text>
           </View>
           <View style={styles.loginButton}>
             <Button loading={loading} onPress={handleLogin} title="Login" />
