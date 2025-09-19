@@ -6,11 +6,10 @@ import RegisterScreen from '../Screens/Register';
 import ApplicationsScreen from '../Screens/Applications';
 import DashboardScreen from '../Screens/Dashboard';
 import SettingsScreen from '../Screens/Settings';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AddJobScreen from '../Screens/AddJob';
 import JobinfoScreen from '../Screens/JobInfoScreen';
-import ResetPasswordScreen from '../Screens/ResetPasswordScreen';
+
 import ForgotPasswordScreen from '../Screens/ForgetPasswordScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -42,17 +41,9 @@ const MyStackNavigator = () => {
             tabBarStyle: { backgroundColor: 'white' },
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Ionicons
-                  name="file-tray-full-outline"
-                  size={24}
-                  color="black"
-                />
+                <MaterialIcons name="assignment" size={24} color="black" />
               ) : (
-                <Ionicons
-                  name="file-tray-full-outline"
-                  size={24}
-                  color="gray"
-                />
+                <MaterialIcons name="assignment" size={24} color="gray" />
               ),
           }}
         />
@@ -64,9 +55,9 @@ const MyStackNavigator = () => {
             tabBarStyle: { backgroundColor: 'white' },
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Ionicons name="grid-outline" size={24} color="black" />
+                <MaterialIcons name="grid-view" size={24} color="black" />
               ) : (
-                <Ionicons name="grid-outline" size={24} color="gray" />
+                <MaterialIcons name="grid-view" size={24} color="gray" />
               ),
           }}
         />
@@ -78,9 +69,9 @@ const MyStackNavigator = () => {
             tabBarStyle: { backgroundColor: 'white' },
             tabBarIcon: ({ focused }) =>
               focused ? (
-                <Ionicons name="settings-outline" size={24} color="black" />
+                <MaterialIcons name="settings" size={24} color="black" />
               ) : (
-                <Ionicons name="settings-outline" size={24} color="gray" />
+                <MaterialIcons name="settings" size={24} color="gray" />
               ),
           }}
         />
@@ -116,15 +107,7 @@ const MyStackNavigator = () => {
             title: '',
           }}
         />
-        <Stack.Screen
-          name="ResetPasswordScreen"
-          component={ResetPasswordScreen}
-          options={{
-            headerBackVisible: true,
-            headerShown: true,
-            title: '',
-          }}
-        />
+
         <Stack.Screen
           name="ForgotPasswordScreen"
           component={ForgotPasswordScreen}

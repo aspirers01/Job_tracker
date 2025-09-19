@@ -3,15 +3,17 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Image,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import LoginWithInput from '../Components/LoginwithInput';
 import Button from '../Components/Button';
 import { useState } from 'react';
 import axios from 'axios';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 function RegisterScreen(props) {
   const [name, setName] = useState('');
@@ -34,22 +36,17 @@ function RegisterScreen(props) {
         return;
       }
       const baseURL =
-        Platform.OS === 'android'
-          ? 'https://job-trackerbackendapi.onrender.com/api/v1/users/register'
-          : 'https://job-trackerbackendapi.onrender.com/api/v1/users/register';
+        'https://job-trackerbackendapi.onrender.com/api/v1/users/register';
       const { data } = await axios.post(baseURL, {
-        name: name,
-        email: email,
-        password: password,
+        name,
+        email,
+        password,
       });
-      console.log(data);
       setLoading(false);
       if (data) {
         alert('Registration Successful');
         props.navigation.replace('LoginScreen');
       }
-
-      return;
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -58,53 +55,60 @@ function RegisterScreen(props) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-      >
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-          <View>
-            <Text style={styles.headingtext}>Job Tracker</Text>
-          </View>
-          <View style={styles.motto}>
-            <Text style={styles.subheadingtext}>
-              Manage your job applications
-            </Text>
-            <Text style={styles.subheadingtext}>effortlessly</Text>
-          </View>
-          <View>
-            <LoginWithInput
-              iconname="person-outline"
-              placeholder="Name"
-              setValue={setName}
-            />
-            <LoginWithInput
-              iconname="mail-outline"
-              placeholder="UserEmail"
-              setValue={setEmail}
-            />
-            <LoginWithInput
-              iconname="lock-closed-outline"
-              placeholder="Password"
-              setValue={setPassword}
-            />
-            <LoginWithInput
-              iconname="lock-closed-outline"
-              placeholder="Confirm Password"
-              setValue={setConfirmPassword}
-            />
-            <View style={styles.registerButton}>
-              <Button
-                title="Register"
-                onPress={handleRegister}
-                loading={loading}
-              />
+    <LinearGradient colors={['#109bfe', '#2563EB']} style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Header / Logo */}
+            <View style={styles.header}>
+              <MaterialIcons name="work" size={64} color="white" />
+              <Text style={styles.title}>Join Job Tracker</Text>
+              <Text style={styles.subtitle}>
+                Create an account and manage your job applications easily
+              </Text>
             </View>
-          </View>
-          <View>
-            <Text style={styles.registertext}>
-              Don't have an account?{' '}
+
+            {/* Form Card */}
+            <View style={styles.form}>
+              <LoginWithInput
+                iconname="person"
+                placeholder="Name"
+                setValue={setName}
+              />
+              <LoginWithInput
+                iconname="email"
+                placeholder="Email"
+                setValue={setEmail}
+              />
+              <LoginWithInput
+                iconname="lock"
+                placeholder="Password"
+                setValue={setPassword}
+              />
+              <LoginWithInput
+                iconname="lock"
+                placeholder="Confirm Password"
+                setValue={setConfirmPassword}
+              />
+
+              <View style={{ marginTop: 20 }}>
+                <Button
+                  title="Register"
+                  onPress={handleRegister}
+                  loading={loading}
+                />
+              </View>
+            </View>
+
+            {/* Footer */}
+            <Text style={styles.footerText}>
+              Already have an account?{' '}
               <Text
                 style={styles.link}
                 onPress={() => props.navigation.replace('LoginScreen')}
@@ -112,67 +116,55 @@ function RegisterScreen(props) {
                 Login
               </Text>
             </Text>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 export default RegisterScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: 'white',
   },
-  headingtext: {
-    textAlign: 'center',
-    fontSize: 30,
-    fontWeight: 400,
-    fontFamily: 'Lavishly Yours',
-    marginTop: 30,
-    fontWeight: 'bold',
-    color: 'black',
+  header: {
+    alignItems: 'center',
     marginBottom: 20,
   },
-  motto: {
-    marginTop: 40,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  subheadingtext: {
-    fontSize: 20,
-    fontWeight: 400,
-    fontFamily: 'Lavishly Yours',
-    color: 'black',
-    marginBottom: 20,
-  },
-  LogoTextView: {
-    alignItems: 'center',
-  },
-  LogoText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#041E42',
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: 'white',
     marginTop: 10,
   },
-  registertext: {
+  subtitle: {
+    fontSize: 14,
+    color: '#E0E7FF',
+    marginTop: 5,
+    textAlign: 'center',
+    paddingHorizontal: 30,
+  },
+  form: {
+    marginHorizontal: 20,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  footerText: {
     textAlign: 'center',
     marginVertical: 20,
+    fontSize: 14,
+    color: 'white',
   },
   link: {
-    color: '#f4511e',
-  },
-  registerButton: {
-    backgroundColor: '#109bfeff',
-    padding: 10,
-    width: 300,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-    marginTop: 50,
+    color: '#FFD700', // golden accent
+    fontWeight: '600',
   },
 });

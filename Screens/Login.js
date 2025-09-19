@@ -5,18 +5,22 @@ import {
   StyleSheet,
   Platform,
   View,
+  ScrollView,
 } from 'react-native';
 import LoginWithInput from '../Components/LoginwithInput';
-import { use, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../Components/Button';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect } from 'react';
 import validateToken from '../Utils/ValidationToken';
+import LinearGradient from 'react-native-linear-gradient';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 function LoginScreen(props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const checkLogin = async () => {
       const token = await AsyncStorage.getItem('accessToken');
@@ -25,18 +29,14 @@ function LoginScreen(props) {
         if (isvalid) {
           props.navigation.replace('Main');
         } else {
-          const newtoken = await refreshAccessToken();
-          if (newtoken) {
-            props.navigation.replace('Main');
-          } else {
-            await AsyncStorage.removeItem('accessToken');
-            await AsyncStorage.removeItem('user');
-          }
+          await AsyncStorage.removeItem('accessToken');
+          await AsyncStorage.removeItem('user');
         }
       }
     };
     checkLogin();
   }, []);
+
   async function handleLogin() {
     try {
       setLoading(true);
@@ -46,16 +46,13 @@ function LoginScreen(props) {
         return;
       }
       const baseURL =
-        Platform.OS === 'android'
-          ? 'https://job-trackerbackendapi.onrender.com/api/v1/users/login'
-          : 'https://job-trackerbackendapi.onrender.com/api/v1/users/login';
+        'https://job-trackerbackendapi.onrender.com/api/v1/users/login';
       const { data } = await axios.post(baseURL, {
-        email: email,
-        password: password,
+        email,
+        password,
       });
 
       setLoading(false);
-      console.log('data is this ', data);
       if (data) {
         await AsyncStorage.setItem('accessToken', data.tokens.accessToken);
         await AsyncStorage.setItem('refreshToken', data.tokens.refreshToken);
@@ -63,70 +60,71 @@ function LoginScreen(props) {
         alert('Login Successful');
         props.navigation.replace('Main');
       }
-
-      return;
     } catch (error) {
       setLoading(false);
       if (error.response) {
-        console.log('Backend responded with error:', error.response.data);
         alert(error.response.data.message || 'Login failed');
       } else if (error.request) {
-        console.log('No response received:', error.request);
         alert('Network error, try again');
       } else {
-        console.log('Axios error:', error.message);
         alert('Unexpected error, try again');
       }
     }
   }
-  return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}
-      >
-        <View>
-          <Text style={styles.headingtext}>Job Tracker</Text>
-        </View>
-        <View style={styles.motto}>
-          <Text style={styles.subheadingtext}>
-            Manage your job applications
-          </Text>
-          <Text style={styles.subheadingtext}>effortlessly</Text>
-        </View>
 
-        <View style={styles.maincontainer}>
-          <LoginWithInput
-            iconname="mail-outline"
-            placeholder="Username"
-            setValue={setEmail}
-          />
-          <LoginWithInput
-            iconname="lock-closed-outline"
-            placeholder="Password"
-            setValue={setPassword}
-          />
-          <View
-            style={{
-              marginTop: 5,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}
+  return (
+    <LinearGradient colors={['#109bfe', '#2563EB']} style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+            showsVerticalScrollIndicator={false}
           >
-            <Text>Keep me logged in</Text>
-            <Text
-              style={{ color: '#007fff' }}
-              onPress={() => props.navigation.navigate('ForgotPasswordScreen')}
-            >
-              Forget Password
-            </Text>
-          </View>
-          <View style={styles.loginButton}>
-            <Button loading={loading} onPress={handleLogin} title="Login" />
-          </View>
-          <View>
-            <Text style={styles.logintext}>
-              Don't have an account?{' '}
+            {/* Header */}
+            <View style={styles.header}>
+              <MaterialIcons name="work" size={64} color="white" />
+              <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.subtitle}>
+                Login to continue tracking your job applications
+              </Text>
+            </View>
+
+            {/* Form Card */}
+            <View style={styles.form}>
+              <LoginWithInput
+                iconname="email"
+                placeholder="Email"
+                setValue={setEmail}
+              />
+              <LoginWithInput
+                iconname="lock"
+                placeholder="Password"
+                setValue={setPassword}
+              />
+
+              <View style={styles.row}>
+                <Text style={{ color: '#374151' }}>Keep me logged in</Text>
+                <Text
+                  style={styles.link}
+                  onPress={() =>
+                    props.navigation.navigate('ForgotPasswordScreen')
+                  }
+                >
+                  Forgot Password?
+                </Text>
+              </View>
+
+              <View style={{ marginTop: 20 }}>
+                <Button loading={loading} onPress={handleLogin} title="Login" />
+              </View>
+            </View>
+
+            {/* Footer */}
+            <Text style={styles.footerText}>
+              Don’t have an account?{' '}
               <Text
                 style={styles.link}
                 onPress={() => props.navigation.replace('RegisterScreen')}
@@ -134,61 +132,60 @@ function LoginScreen(props) {
                 Register
               </Text>
             </Text>
-          </View>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 export default LoginScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
   },
-  headingtext: {
-    fontSize: 30,
-    fontWeight: 400,
-    fontFamily: 'Lavishly Yours',
-    marginTop: 30,
-    fontWeight: 'bold',
-    color: 'black',
+  header: {
+    alignItems: 'center',
     marginBottom: 20,
   },
-  motto: {
-    marginTop: 40,
-    alignItems: 'center',
-    marginBottom: 10,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: 'white',
+    marginTop: 10,
   },
-  subheadingtext: {
-    fontSize: 20,
-    fontWeight: 400,
-    fontFamily: 'Lavishly Yours',
-    color: 'black',
-    marginBottom: 20,
+  subtitle: {
+    fontSize: 14,
+    color: '#E0E7FF',
+    marginTop: 5,
+    textAlign: 'center',
+    paddingHorizontal: 30,
   },
-  maincontainer: {
-    flex: 1,
-    justifyContent: 'center',
+  form: {
+    marginHorizontal: 20,
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  row: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   link: {
-    color: '#f4511e',
-    alignItems: 'center',
+    color: '#f97316',
+    fontWeight: '600',
   },
-  logintext: {
+  footerText: {
     textAlign: 'center',
     marginVertical: 20,
-  },
-  loginButton: {
-    backgroundColor: '#109bfeff',
-    padding: 10,
-    width: 300,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-    marginTop: 50,
+    fontSize: 14,
+    color: 'white',
   },
 });

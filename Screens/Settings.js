@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import Button from '../Components/Button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect } from 'react/cjs/react.development';
+import { useEffect } from 'react';
 
 function SettingsScreen(props) {
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,7 @@ function SettingsScreen(props) {
       <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>
         Settings
       </Text>
-      <View style={styles.loginButton}>
+      <View style={{ width: 300 }}>
         <Button
           title="Logout"
           loading={loading}
@@ -63,16 +63,5 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  loginButton: {
-    backgroundColor: '#109bfeff',
-    padding: 10,
-    width: 300,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 10,
-    marginTop: 50,
   },
 });
